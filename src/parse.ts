@@ -137,21 +137,21 @@ const LIT = 1,
     CLOSE_PAREN = 7;
 
 /**
- * Parse a formular into an AST-like structure
- * @param {String} formular string to parse
+ * Parse a formula into an AST-like structure
+ * @param {String} formula string to parse
  * @returns {Expression|null} Parsed structure or null if parsing failed
  */
-export function parse(formular: string): Expression | null {
+export function parse(formula: string): Expression | null {
     const regex =
         /(\d+(?:\.\d+)?|"(?:""|[^"])*"|TRUE|FALSE|NULL)|([-+\/*^%&]|<>|[<>]=?|!=)|([A-Z]+[1-9]\d*(?::[A-Z]+[1-9]\d*)?)|([A-Z][A-Z\d]*\s*\()|(,)|(\()|(\))/g;
     const context = new Context();
     let match: RegExpExecArray | null = null;
     let lastIndex = 0;
 
-    formular = formular.replace(/\s+$/, ''); // right trim
+    formula = formula.replace(/\s+$/, ''); // right trim
 
-    while ((match = regex.exec(formular))) {
-        const orphan = formular.substring(lastIndex, match.index).trim();
+    while ((match = regex.exec(formula))) {
+        const orphan = formula.substring(lastIndex, match.index).trim();
         lastIndex = regex.lastIndex;
 
         if (orphan) {
@@ -201,7 +201,7 @@ export function parse(formular: string): Expression | null {
         }
     }
 
-    const remaining = formular.substr(lastIndex);
+    const remaining = formula.substr(lastIndex);
     if (remaining) {
         if (remaining) {
             throw new UnexpectedTokenError(remaining, lastIndex);

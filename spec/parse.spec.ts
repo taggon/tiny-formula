@@ -2,7 +2,7 @@ import { UnexpectedTokenError } from '../src/errors';
 import { parse, CellRange, Func, Group } from '../src/parse';
 
 describe('parse()', () => {
-    it('returns null for empty formular', () => {
+    it('returns null for empty formula', () => {
         expect(parse('')).toBeNull();
     });
 

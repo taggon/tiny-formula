@@ -121,4 +121,4 @@ calc('UNDEFINED()'); // throws a UndefinedFunctionError exception
 
 ## License
 
-Tiny Formular is released under MIT license.
+Tiny Formula is released under MIT license.

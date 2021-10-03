@@ -8,8 +8,8 @@ const data = [
 ];
 
 describe('calc()', () => {
-    const _calc = (formular: string, funcs?: Record<string, Function>) => {
-        return calc(formular, data, funcs);
+    const _calc = (formula: string, funcs?: Record<string, Function>) => {
+        return calc(formula, data, funcs);
     };
 
     it('returns null for null parsed result', () => {

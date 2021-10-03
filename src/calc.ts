@@ -15,11 +15,11 @@ function arrayCut(array: any[], start: number, end: number, defaultValue: any) {
 }
 
 export function calc(
-    formular: string,
+    formula: string,
     dataset: any[][] = [],
     funcs?: Record<string, Function>
 ): any {
-    const parsed = parse(formular);
+    const parsed = parse(formula);
 
     if (parsed === null) return null;
 
