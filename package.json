@@ -15,7 +15,7 @@
         "build": "tsc",
         "coverage": "nyc -r lcov -e .ts -x \"*.spec.ts\" jasmine-ts \"spec/**/*.spec.ts\"",
         "prepare": "husky install",
-        "prepublish": "npm run clean && npm run build"
+        "prepack": "npm run clean && npm run build"
     },
     "repository": {
         "type": "git",
