@@ -1,5 +1,9 @@
 # Tiny Formula
 
+![Node.js CI](https://github.com/taggon/tiny-formula/actions/workflows/node.js.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/taggon/tiny-formula/badge.svg?branch=main)](https://coveralls.io/github/taggon/tiny-formula?branch=main)
+![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)
+
 > A lightweight toolset for parsing excel-like formulas and calculating with custom functions.
 
 No dependencies.
