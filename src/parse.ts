@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { InvalidTypeError, UnexpectedTokenError } from './errors';
+import { UnexpectedTokenError } from './errors';
 
 export type Expression = Func | Group | Literal | Operator | Cell | CellRange;
 
@@ -139,7 +139,7 @@ const LIT = 1,
 /**
  * Parse a formula into an AST-like structure
  * @param {String} formula string to parse
- * @returns {Expression|null} Parsed structure or null if parsing failed
+ * @returns {Expression|null} Parsed structure or null if the formula is evaluated to null
  */
 export function parse(formula: string): Expression | null {
     const regex =
@@ -148,14 +148,21 @@ export function parse(formula: string): Expression | null {
     let match: RegExpExecArray | null = null;
     let lastIndex = 0;
 
-    formula = formula.replace(/\s+$/, ''); // right trim
-
     while ((match = regex.exec(formula))) {
         const orphan = formula.substring(lastIndex, match.index).trim();
         lastIndex = regex.lastIndex;
 
         if (orphan) {
             throw new UnexpectedTokenError(orphan, lastIndex);
+        }
+
+        if (match[LIT] || match[CELL] || match[FN]) {
+            if (
+                context.prev !== undefined &&
+                context.prev.type !== 'operator'
+            ) {
+                throw new UnexpectedTokenError(match[0], lastIndex);
+            }
         }
 
         if (match[LIT]) {
@@ -181,7 +188,7 @@ export function parse(formula: string): Expression | null {
         }
 
         if (match[COMMA]) {
-            if (context.is('func') && context.siblings.length > 0) {
+            if (context.is('func') && context.prev) {
                 context.punctuate();
                 continue;
             }
@@ -196,25 +203,26 @@ export function parse(formula: string): Expression | null {
         }
 
         if (match[CLOSE_PAREN]) {
-            context.pop();
-            continue;
+            if (context.current !== context.top) {
+                context.pop();
+                continue;
+            }
+            lastIndex--;
         }
     }
 
-    const remaining = formula.substr(lastIndex);
+    const remaining = formula.substr(lastIndex).trim();
     if (remaining) {
-        if (remaining) {
-            throw new UnexpectedTokenError(remaining, lastIndex);
-        }
+        throw new UnexpectedTokenError(remaining, lastIndex);
     }
 
-    if (context.first.items.length === 0) {
+    if (context.top.items.length === 0) {
         return null;
     }
 
-    if (context.first.items.length > 1) {
-        return context.first;
+    if (context.top.items.length > 1) {
+        return context.top;
     }
 
-    return context.first.items[0];
+    return context.top.items[0];
 }

@@ -1,4 +1,4 @@
-import type { Group, Func, Expression, Operator } from './parse';
+import type { Group, Func, Expression } from './parse';
 
 type ContextType = Group | Func;
 interface Fragment {
@@ -13,57 +13,90 @@ export class Context {
         this.stack.push({ type: 'group', items: [] });
     }
 
-    get first() {
+    get top() {
         return this.stack[0] as Group;
     }
 
     get current(): Group | Func {
-        if (this.last.type === 'fragment') {
+        if (this.bottom.type === 'fragment') {
             return this.stack.slice(-2, -1)[0] as Func;
         }
 
-        return this.last as Group | Func;
+        return this.bottom as Group | Func;
     }
 
-    get last() {
-        return this.stack.slice(-1)[0];
+    get bottom() {
+        return this.stack.slice(-1)[0] as Group | Fragment;
     }
 
-    get siblings() {
-        return [...(this.last as Group | Fragment).items];
+    /**
+     * Sibling items
+     *
+     * @return {Expression[]}
+     */
+    get siblings(): Expression[] {
+        return [...this.bottom.items];
     }
 
+    /**
+     * Previous sibling
+     *
+     * @returns {?Expression} The previous sibling or undefined if there is none
+     */
+    get prev(): Expression | undefined {
+        return this.siblings[this.siblings.length - 1];
+    }
+
+    /**
+     * Check if the current context is the given type.
+     *
+     * @param {'group' | 'func'} type
+     * @returns boolean
+     */
     is(type: 'group' | 'func') {
         return this.current.type === type;
     }
 
+    /**
+     * Add a new expression to the current context.
+     *
+     * @param {Expression} item The expression to add
+     */
     add(item: Expression) {
         if (this.current.type === 'group') {
             this.current.items.push(item);
         } else {
-            (this.last as Fragment).items.push(item);
+            (this.bottom as Fragment).items.push(item);
         }
     }
 
-    push(ctx: Group | Func) {
+    /**
+     * Push a new context to the stack.
+     *
+     * @param {ContextType} ctx Context to push
+     */
+    push(ctx: ContextType) {
         this.stack.push(ctx);
         if (ctx.type === 'func') {
             this.stack.push({ type: 'fragment', items: [] });
         }
     }
 
+    /**
+     * Pop the current context from the stack.
+     */
     pop() {
-        switch (this.last.type) {
+        switch (this.bottom.type) {
             case 'fragment':
                 this.punctuate();
                 this.stack.pop();
                 break;
             case 'group':
-                const items = this.last.items;
+                const items = this.bottom.items;
                 if (items.length === 1 && items[0].type === 'group') {
-                    this.last.items = items[0].items;
+                    this.bottom.items = items[0].items;
                 } else {
-                    this.last.items = items;
+                    this.bottom.items = items;
                 }
                 break;
         }
@@ -71,15 +104,15 @@ export class Context {
         this.stack.pop() as ContextType | undefined;
     }
 
+    /**
+     * In function context, move to the next argument.
+     */
     punctuate() {
-        if (this.last.type !== 'fragment') {
-            return;
-        }
-
-        const items = this.last.items;
+        const bottom = this.bottom as Fragment;
+        const items = bottom.items;
         const args = (this.current as Func).args;
 
-        this.last.items = [];
+        this.bottom.items = [];
 
         if (items.length === 1) {
             args.push(items[0]);

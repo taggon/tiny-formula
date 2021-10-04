@@ -1,4 +1,3 @@
-export class InvalidTypeError extends Error {}
 export class UnexpectedTokenError extends Error {
     constructor(token: string, position: number) {
         super(`Unexpected token ${token} at position ${position}`);

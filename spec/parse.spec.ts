@@ -6,10 +6,15 @@ describe('parse()', () => {
         expect(parse('')).toBeNull();
     });
 
-    it('parses simple literal values', () => {
+    it('parses simple literal values including TRUE, FALSE, and NULL', () => {
         expect(parse('TRUE')).toEqual({
             type: 'literal',
             value: true,
+        });
+
+        expect(parse('NULL')).toEqual({
+            type: 'literal',
+            value: null,
         });
 
         expect(parse('356')).toEqual({
@@ -103,8 +108,8 @@ describe('parse()', () => {
             UnexpectedTokenError
         );
         expect(() => parse('"exception"?')).toThrowError(UnexpectedTokenError);
-        // expect(() => parse('"error"WHAT()')).toThrowError(UnexpectedTokenError);
-        // expect(() => parse('FUN(C1:D2))')).toThrowError(UnexpectedTokenError);
-        // expect(() => parse(')FUN(C1:D2)')).toThrowError(UnexpectedTokenError);
+        expect(() => parse('"error"WHAT()')).toThrowError(UnexpectedTokenError);
+        expect(() => parse('FUN(C1:D2))')).toThrowError(UnexpectedTokenError);
+        expect(() => parse(')FUN(C1:D2)')).toThrowError(UnexpectedTokenError);
     });
 });
