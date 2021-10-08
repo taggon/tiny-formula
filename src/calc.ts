@@ -1,7 +1,12 @@
 import { parse, Expression } from './parse';
 import { UndefinedFunctionError, CellNotFoundError } from './errors';
 
-function arrayCut(array: any[], start: number, end: number, defaultValue: any) {
+function arrayCut<T>(
+    array: T[],
+    start: number,
+    end: number,
+    defaultValue: T
+): T[] {
     const min = Math.min(start, end);
     const max = Math.max(start, end) + 1;
     const count = max - min;
@@ -16,8 +21,8 @@ function arrayCut(array: any[], start: number, end: number, defaultValue: any) {
 
 export function calc(
     formula: string,
-    dataset: any[][] = [],
-    funcs?: Record<string, Function>
+    dataset: unknown[][] = [],
+    funcs?: Record<string, (...args: any[]) => any>
 ): any {
     const parsed = parse(formula);
 
@@ -25,13 +30,14 @@ export function calc(
 
     const traverse: any = (expr: Expression) => {
         switch (expr.type) {
-            case 'cell':
+            case 'cell': {
                 const data = dataset[expr.pos.row]?.[expr.pos.col];
                 if (data === undefined) {
                     throw new CellNotFoundError(expr.name);
                 }
                 return data;
-            case 'cellRange':
+            }
+            case 'cellRange': {
                 const rows = arrayCut(
                     dataset,
                     expr.start.pos.row,
@@ -41,28 +47,31 @@ export function calc(
                 return rows.map((row) =>
                     arrayCut(row, expr.start.pos.col, expr.end.pos.col, null)
                 );
-            case 'func':
+            }
+            case 'func': {
                 if (funcs?.[expr.name] === undefined) {
                     throw new UndefinedFunctionError(expr.name);
                 }
-                const args = expr.args.map(traverse) as any[];
-                return funcs?.[expr.name](...args);
+                const args = expr.args.map(traverse);
+                return funcs[expr.name](...args);
+            }
             case 'literal':
                 return expr.value;
-            case 'operator':
+            case 'operator': {
                 const trans: Record<string, string> = {
                     '&': '+""+',
                     '^': '**',
                     '<>': '!==',
                     '!=': '!==',
                 };
-                return trans[expr.op] ?? expr.op;
-            case 'group':
+                return trans[expr.op] || expr.op;
+            }
+            case 'group': {
                 if (expr.items.length < 2) {
                     return expr.items.map(traverse)[0] || null;
                 }
 
-                const items: any[] = expr.items
+                const items: unknown[] = expr.items
                     .map(traverse)
                     .map((value, idx) => {
                         if (expr.items[idx].type !== 'operator') {
@@ -77,6 +86,7 @@ export function calc(
                     });
 
                 return new Function(`return ${items.join('')}`)();
+            }
         }
     };
 

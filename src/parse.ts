@@ -78,9 +78,7 @@ function operator(expr: string): Operator {
  * @param {String} name cell name
  */
 function cellPos(name: string): Cell['pos'] {
-    const [_, col, row] = name.match(
-        /^([A-Z]+)([1-9]\d*)$/
-    ) as RegExpMatchArray;
+    const [, col, row] = /^([A-Z]+)([1-9]\d*)$/.exec(name) as RegExpExecArray;
 
     const colPos = col
         .split('')
@@ -143,7 +141,7 @@ const LIT = 1,
  */
 export function parse(formula: string): Expression | null {
     const regex =
-        /(\d+(?:\.\d+)?|"(?:""|[^"])*"|TRUE|FALSE|NULL)|([-+\/*^%&]|<>|[<>]=?|!=)|([A-Z]+[1-9]\d*(?::[A-Z]+[1-9]\d*)?)|([A-Z][A-Z\d]*\s*\()|(,)|(\()|(\))/g;
+        /(\d+(?:\.\d+)?|"(?:""|[^"])*"|TRUE|FALSE|NULL)|([-+/*^%&]|<>|[<>]=?|!=)|([A-Z]+[1-9]\d*(?::[A-Z]+[1-9]\d*)?)|([A-Z][A-Z\d]*(?:\.[A-Z\d]+)?\s*\()|(,)|(\()|(\))/g;
     const context = new Context();
     let match: RegExpExecArray | null = null;
     let lastIndex = 0;

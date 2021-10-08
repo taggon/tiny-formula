@@ -1,5 +1,6 @@
 # Tiny Formula
 
+[![Npm package version](https://badgen.net/npm/v/tiny-formula)](https://npmjs.com/package/tiny-formula)
 ![Node.js CI](https://github.com/taggon/tiny-formula/actions/workflows/node.js.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/taggon/tiny-formula/badge.svg?branch=main)](https://coveralls.io/github/taggon/tiny-formula?branch=main)
 ![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -26,13 +27,13 @@ $ yarn add tiny-formula
 
 ### parse()
 
-The `parse()` function takes a formula string and returns a tree of nodes.
+The `parse()` function takes a formula string and returns a tree of expressions.
 
 ```ts
-parse(formula: string): Node
+parse(formula: string): Expression
 ```
 
-A `Node` is a plain object containing a `type` property and other properties depending on the node type. Note that `parse()` does NOT check if the cells exist or not. It only syntactically parses the formula to create a tree.
+An `Expression` is a plain object containing a `type` property and other properties depending on the expression type. Note that `parse()` does NOT check if the cells exist or not. It only syntactically parses the formula to create a tree.
 
 Be careful that all cell names and function names should be uppercased. Lowercased letters are not allowed for the names.
 

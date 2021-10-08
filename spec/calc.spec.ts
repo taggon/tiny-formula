@@ -1,6 +1,8 @@
 import { calc } from '../src/calc';
 import { CellNotFoundError, UndefinedFunctionError } from '../src/errors';
 
+type CalcArgs = Parameters<typeof calc>;
+
 const data = [
     [10, 20, 30, 40, 50],
     [22, 33, 44, 55, 66],
@@ -8,7 +10,7 @@ const data = [
 ];
 
 describe('calc()', () => {
-    const _calc = (formula: string, funcs?: Record<string, Function>) => {
+    const _calc = (formula: CalcArgs[0], funcs?: CalcArgs[2]) => {
         return calc(formula, data, funcs);
     };
 
@@ -44,7 +46,7 @@ describe('calc()', () => {
 
     it('calls user-defined functions', () => {
         const funcs = {
-            ADD: (a: any, b: any) => a + b,
+            ADD: (a: number, b: number) => a + b,
             IF: (b: boolean, yes: any, no: any) => (b ? yes : no),
         };
         expect(_calc('ADD(A1,D1)', funcs)).toBe(10 + 40);

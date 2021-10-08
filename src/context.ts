@@ -13,7 +13,7 @@ export class Context {
         this.stack.push({ type: 'group', items: [] });
     }
 
-    get top() {
+    get top(): Group {
         return this.stack[0] as Group;
     }
 
@@ -25,7 +25,7 @@ export class Context {
         return this.bottom as Group | Func;
     }
 
-    get bottom() {
+    get bottom(): Group | Fragment {
         return this.stack.slice(-1)[0] as Group | Fragment;
     }
 
@@ -53,7 +53,7 @@ export class Context {
      * @param {'group' | 'func'} type
      * @returns boolean
      */
-    is(type: 'group' | 'func') {
+    is(type: 'group' | 'func'): boolean {
         return this.current.type === type;
     }
 
@@ -62,7 +62,7 @@ export class Context {
      *
      * @param {Expression} item The expression to add
      */
-    add(item: Expression) {
+    add(item: Expression): void {
         if (this.current.type === 'group') {
             this.current.items.push(item);
         } else {
@@ -75,7 +75,7 @@ export class Context {
      *
      * @param {ContextType} ctx Context to push
      */
-    push(ctx: ContextType) {
+    push(ctx: ContextType): void {
         this.stack.push(ctx);
         if (ctx.type === 'func') {
             this.stack.push({ type: 'fragment', items: [] });
@@ -85,13 +85,13 @@ export class Context {
     /**
      * Pop the current context from the stack.
      */
-    pop() {
+    pop(): void {
         switch (this.bottom.type) {
             case 'fragment':
                 this.punctuate();
                 this.stack.pop();
                 break;
-            case 'group':
+            case 'group': {
                 const items = this.bottom.items;
                 if (items.length === 1 && items[0].type === 'group') {
                     this.bottom.items = items[0].items;
@@ -99,6 +99,7 @@ export class Context {
                     this.bottom.items = items;
                 }
                 break;
+            }
         }
 
         this.stack.pop() as ContextType | undefined;
@@ -107,7 +108,7 @@ export class Context {
     /**
      * In function context, move to the next argument.
      */
-    punctuate() {
+    punctuate(): void {
         const bottom = this.bottom as Fragment;
         const items = bottom.items;
         const args = (this.current as Func).args;
